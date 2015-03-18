@@ -1,3 +1,5 @@
+require_relative '../../effective_assets.rb'
+
 module EffectiveAssets
   module Generators
     class InstallGenerator < Rails::Generators::Base
