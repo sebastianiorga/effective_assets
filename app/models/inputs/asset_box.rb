@@ -12,10 +12,16 @@ module Inputs
     def to_html
       output = ''
       output += header_html
-      output += attachments_html
 
-      output += dialog_html if @options[:dialog]
-      output += uploader_html if @options[:uploader]
+      if @options[:uploader] == :top
+        output += uploader_html
+        output += attachments_html
+        output += dialog_html if @options[:dialog]
+      else
+        output += attachments_html
+        output += dialog_html if @options[:dialog]
+        output += uploader_html if @options[:uploader]
+      end
 
       output += footer_html
 
@@ -33,6 +39,7 @@ module Inputs
         data-attachable-type='#{@options[:attachable_type]}'
         data-attachable-object-name='#{@object_name}'
         data-attachment-style='#{@options[:attachment_style]}'
+        data-attachment-add-to='#{@options[:attachment_add_to]}'
         data-attachment-actions='#{@options[:attachment_actions].to_json()}'
         data-aws-acl='#{@options[:aws_acl]}'
       >".html_safe
@@ -44,10 +51,9 @@ module Inputs
           content_tag(:thead) do
             content_tag(:tr) do
               [
-                content_tag(:th, 'Thumbnail'),
-                content_tag(:th, 'Title'.html_safe + (@options[:table_filter_bar] ? filter_bar_html : '')),
-                content_tag(:th, 'Size'),
-                content_tag(:th)
+                content_tag(:th, ''),
+                content_tag(:th, ''),
+                content_tag(:th, (@options[:table_filter_bar] ? filter_bar_html : ''), :colspan => 2)
               ].join().html_safe
             end
           end + content_tag(:tbody, build_values_html, :class => 'attachments')
@@ -77,7 +83,10 @@ module Inputs
           :disabled => @options[:disabled],
           :file_types => @options[:file_types],
           :progress_bar_partial => @options[:progress_bar_partial],
-          :aws_acl => @options[:aws_acl]
+          :drop_files => @options[:uploader_drop_files],
+          :drop_files_help_text => @options[:drop_files_help_text],
+          :aws_acl => @options[:aws_acl],
+          :btn_label => @options[:btn_label]
         }
       ).html_safe
     end
@@ -129,16 +138,20 @@ module Inputs
 
     def initialize_options(method, opts)
       {
-        :uploader => true,
+        :uploader => true, # :top, :bottom, true or false
+        :uploader_drop_files => false,
+        :drop_files_help_text => 'Drop files here',
         :progress_bar_partial => 'asset_box_input/progress_bar_template',
         :attachment_style => :thumbnail,  # :thumbnail, :table, or :list
+        :attachment_add_to => :bottom, # :bottom or :top (of attachments div)
         :attachment_actions => [:remove], # or :insert, :delete, :remove
         :table_filter_bar => false,
         :dialog => false,
         :dialog_url => @template.effective_assets.effective_assets_path,
         :disabled => false,
         :file_types => [:any],
-        :aws_acl => EffectiveAssets.aws_acl
+        :aws_acl => EffectiveAssets.aws_acl,
+        :btn_label => "Upload files..."
       }.merge(opts).tap do |options|
         options[:method] = method.to_s
         options[:box] = method.to_s.pluralize

@@ -39,8 +39,8 @@ $.fn.S3Uploader = (options) ->
             alert("Unable to add #{file.name}.\n\nOnly #{settings.file_types.replace(/\|/g, ', ')} files allowed.")
             return false
 
-        if file.name.length > 150
-          alert("Unable to add #{file.name}.\n\nFile name too long.  File name must be 150 or fewer characters long.")
+        if file.name.length > 180
+          alert("Unable to add #{file.name}.\n\nFile name too long.  File name must be 180 or fewer characters long.")
           return false
 
         # We're all good. Let's go ahead and add this
@@ -209,8 +209,9 @@ $.fn.S3Uploader = (options) ->
       async: true
       success: (data) ->
         limit = asset_box.data('limit')
+        direction = asset_box.data('attachment-add-to')  # bottom or top.  bottom is default append behaviour
 
-        if limit == 10000 # Guard value for no limit
+        if limit == 10000 && direction != 'top' # Guard value for no limit.  There is no limit
           asset_box.find('.attachments').append($(data))
         else
           asset_box.find('.attachments').prepend($(data))

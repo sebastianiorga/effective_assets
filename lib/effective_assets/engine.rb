@@ -25,15 +25,20 @@ module EffectiveAssets
       end
     end
 
+    # Set up our default configuration options.
+    initializer "effective_assets.defaults", :before => :load_config_initializers do |app|
+      eval File.read("#{config.root}/lib/generators/templates/effective_assets.rb")
+    end
+
     initializer "effective_assets.append_precompiled_assets" do |app|
-      Rails.application.config.assets.precompile += ['effective_assets.js', 'effective_assets_iframe.js', 'effective_assets_iframe.css']
+      Rails.application.config.assets.precompile += ['effective_assets.js', 'effective_assets_iframe.js', 'effective_assets_iframe.css', 'spinner.gif']
     end
 
     # ActiveAdmin (optional)
     # This prepends the load path so someone can override the assets.rb if they want.
     initializer 'effective_assets.active_admin' do
       if defined?(ActiveAdmin) && EffectiveAssets.use_active_admin == true
-        ActiveAdmin.application.load_paths.unshift Dir["#{config.root}/active_admin"]
+        ActiveAdmin.application.load_paths.unshift *Dir["#{config.root}/active_admin"]
       end
     end
 
