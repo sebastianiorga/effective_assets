@@ -63,7 +63,7 @@ module Effective
 
     class << self
       def s3_base_path
-        "https://#{EffectiveAssets.aws_bucket}.s3.amazonaws.com/"
+        "https://#{EffectiveAssets.aws_bucket}.#{EffectiveAssets.aws_region}.amazonaws.com/"
       end
 
       def string_base_path
